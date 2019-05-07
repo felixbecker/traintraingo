@@ -1,9 +1,5 @@
 package webticketmanager
 
-import (
-	"traintraingo/domain"
-)
-
 //ReservationRequestDto a Dto to request a reservation
 type ReservationRequestDto struct {
 	trainID       string
@@ -31,9 +27,15 @@ func New(trainDataService TrainDataService, bookingReferenceService BookingRefer
 
 func (tm *ticketmanager) Reserve(trainID string, numberOfSeats int) string {
 
-	jsonTrain := tm.trainDataService.Train(trainID)
+	train := tm.trainDataService.Train(trainID)
 
-	train := domain.NewTrain(jsonTrain)
-	_ = train
+	reservationAttempt := train.BuildReservationAttempt(numberOfSeats)
+
+	if reservationAttempt.IsFullfilled() {
+		bookingRef := tm.bookingReferenceService.GetBookingReference()
+
+		tm.trainDataService.BookSeats(trainID, bookingRef, reservationAttempt.Seats())
+
+	}
 	return ""
 }
