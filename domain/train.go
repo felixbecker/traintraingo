@@ -1,41 +1,25 @@
 package domain
 
 //Reservationattempt holds information regarding a possible reservation
-type ReservationAttempt struct {
-	numberOfRequestedSeats int
-	seats                  []Seat
-}
-
-func (r *ReservationAttempt) Seats() []Seat {
-
-	return r.seats
-}
-
-//IsFullfilled is true when the numberOfRequestedSeats matches the count of the seats in the reservation attempt
-func (r *ReservationAttempt) IsFullfilled() bool {
-	return len(r.seats) == r.numberOfRequestedSeats
-}
-
-func (r *ReservationAttempt) AssignBookingReference(bookingRef string) {
-	for _, s := range r.seats {
-		s.BookingRef = bookingRef
-	}
-}
 
 //Train is value type thats hold train information
 type Train struct {
-	seats []Seat
+	Coaches map[string]Coach
 }
 
 //Seats retrieves all seats for a given train
 func (t *Train) Seats() []Seat {
-	return t.seats
+	seats := []Seat{}
+	for _, coach := range t.Coaches {
+		seats = append(seats, coach.seats...)
+	}
+	return seats
 }
 
 //ReservedSeats retrieves all reserved seats
 func (t *Train) ReservedSeats() []Seat {
 	reservedSeats := []Seat{}
-	for _, s := range t.seats {
+	for _, s := range t.Seats() {
 		if len(s.BookingRef) > 0 {
 			reservedSeats = append(reservedSeats, s)
 		}
@@ -52,25 +36,29 @@ func (t *Train) MaxSeats() int {
 func (t *Train) DoesNotExceedOveralTrainCapacity(numberOfRequestedSeats int) bool {
 	return float64(len(t.ReservedSeats())+numberOfRequestedSeats) < float64(t.MaxSeats())*float64(0.70)
 }
-func (t *Train) BuildReservationAttempt(seatRequested int) ReservationAttempt {
-	avaibleSeats := []Seat{}
-	for idx, s := range t.seats {
-		if len(s.BookingRef) == 0 {
-			if idx <= seatRequested {
-				avaibleSeats = append(avaibleSeats, s)
-			}
-		}
 
+func (t *Train) BuildReservationAttempt(seatRequested int) ReservationAttempt {
+
+	for _, coach := range t.Coaches {
+		reservationAttempt := coach.BuildReservationAttempt(seatRequested)
+		if reservationAttempt.IsFullfilled() {
+			return reservationAttempt
+		}
 	}
-	return ReservationAttempt{
-		numberOfRequestedSeats: seatRequested,
-		seats:                  avaibleSeats,
-	}
+	return NewFailedReservationAttempt(seatRequested)
 }
 
 //NewTrain creates a new train based on a set of seats
 func NewTrain(seats []Seat) Train {
+	coaches := map[string]Coach{}
+	for _, seat := range seats {
+		if _, ok := coaches[seat.CoachName()]; !ok {
+			coaches[seat.CoachName()] = NewCoach(seat.CoachName())
+		}
+		coaches[seat.CoachName()].AddSeat(seat)
+
+	}
 	return Train{
-		seats: seats,
+		Coaches: coaches,
 	}
 }

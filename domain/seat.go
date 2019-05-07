@@ -16,3 +16,8 @@ func (s *Seat) CoachName() string {
 func (s *Seat) SeatNumber() int {
 	return s.seatNumber
 }
+
+//IsAvailable checks the availability for a seat which is determend by checking if the BookingRef is empty
+func (s *Seat) IsAvailable() bool {
+	return len(s.BookingRef) == 0
+}

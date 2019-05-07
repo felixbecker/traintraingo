@@ -6,7 +6,7 @@ import "traintraingo/domain"
 type TrainDataService interface {
 	Train(id string) domain.Train
 	AdaptTrainTopology(jsonTopology string) []domain.Seat
-	BookSeats(trainID string, bookingReference string, seats []domain.Seat)
+	BookSeats(trainID string, bookingReference string, seats []domain.Seat) error
 }
 
 //BookingReferenceService is a port
