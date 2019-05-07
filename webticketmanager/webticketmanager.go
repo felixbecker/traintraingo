@@ -1,9 +1,5 @@
 package webticketmanager
 
-import (
-	"traintrain/domain"
-)
-
 //ReservationRequestDto a Dto to request a reservation
 type ReservationRequestDto struct {
 	trainID       string
