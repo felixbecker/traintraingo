@@ -21,3 +21,11 @@ func (s *Seat) SeatNumber() int {
 func (s *Seat) IsAvailable() bool {
 	return len(s.BookingRef) == 0
 }
+
+//NewSeat creates a new seat struct based on coachName and seatNumber
+func NewSeat(coachName string, seatNumber int) Seat {
+	return Seat{
+		coachName:  coachName,
+		seatNumber: seatNumber,
+	}
+}

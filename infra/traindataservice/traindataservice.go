@@ -2,17 +2,18 @@ package traindataservice
 
 import (
 	"traintraingo/domain"
-	"traintraingo/webticketmanager"
 )
 
 type dataservice struct {
 }
 
-func New() webticketmanager.TrainDataService {
+//New creates a new train data service
+func New() domain.TrainDataService {
 	return &dataservice{}
 }
 
-type SeatJsonPoco struct {
+//SeatJSONPoco value object to hold information for serialization
+type SeatJSONPoco struct {
 }
 
 func (ds *dataservice) Train(id string) domain.Train {
@@ -23,6 +24,6 @@ func (ds *dataservice) AdaptTrainTopology(jsonTopology string) []domain.Seat {
 	return []domain.Seat{}
 }
 
-func (ds *dataservice) BookSeats(trainID string, bookingReference string, seats []domain.Seat) {
-
+func (ds *dataservice) BookSeats(trainID string, bookingReference string, seats []domain.Seat) error {
+	return nil
 }

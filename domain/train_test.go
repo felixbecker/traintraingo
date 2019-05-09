@@ -3,7 +3,7 @@ package domain_test
 import (
 	"testing"
 	"traintraingo/domain"
-	"traintraingo/traindataservice"
+	"traintraingo/infra/adapters"
 )
 
 func GetTrainTopologyWith10AvailableSeats() string {
@@ -43,14 +43,19 @@ func GetTrainTopology_With_2_Coaches_and_9_seats_are_already_reserved_in_the_fir
 		"8B": {"booking_reference": "", "seat_number": "8", "coach": "B" },
 		"9B": {"booking_reference": "", "seat_number": "9", "coach": "B" },
 		"10B": {"booking_reference": "", "seat_number": "10", "coach": "B" }
-	}`
+	}}`
 }
 func Test_Train_should_expose_coaches(t *testing.T) {
 
-	service := traindataservice.New()
-	train := domain.NewTrain(service.AdaptTrainTopology(GetTrainTopology_With_2_Coaches_and_9_seats_are_already_reserved_in_the_first_coach()))
+	apdatedTrainTopology, err := adapters.AdaptTrainTopology(GetTrainTopology_With_2_Coaches_and_9_seats_are_already_reserved_in_the_first_coach())
+
+	if err != nil {
+		t.Fatalf("This should not happen: %s", err.Error())
+	}
+
+	train := domain.NewTrain(apdatedTrainTopology)
 	if len(train.Coaches) != 2 {
-		t.Errorf("Expected the number of coaches to 2; got %d", train.Coaches)
+		t.Errorf("Expected the number of coaches to 2; got %d", len(train.Coaches))
 	}
 
 	if len(train.Coaches["A"].Seats()) != 10 {

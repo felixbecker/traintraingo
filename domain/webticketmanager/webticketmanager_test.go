@@ -2,7 +2,7 @@ package webticketmanager_test
 
 import (
 	"testing"
-	"traintraingo/webticketmanager"
+	"traintraingo/domain/webticketmanager"
 )
 
 func GetTrainTopologyWith10AvailableSeats() string {

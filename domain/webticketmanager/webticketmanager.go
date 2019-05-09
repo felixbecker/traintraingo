@@ -1,14 +1,16 @@
 package webticketmanager
 
-import "traintraingo/domain"
+import (
+	"traintraingo/domain"
+)
 
 type ticketmanager struct {
-	trainDataService        TrainDataService
-	bookingReferenceService BookingReferenceService
+	trainDataService        domain.TrainDataService
+	bookingReferenceService domain.BookingReferenceService
 }
 
 //New creates a new web ticket manager with dependencies to train data service and booking reference service
-func New(trainDataService TrainDataService, bookingReferenceService BookingReferenceService) domain.SeatReserver {
+func New(trainDataService domain.TrainDataService, bookingReferenceService domain.BookingReferenceService) domain.SeatReserver {
 
 	return &ticketmanager{
 		trainDataService:        trainDataService,
@@ -19,14 +21,15 @@ func New(trainDataService TrainDataService, bookingReferenceService BookingRefer
 func (tm *ticketmanager) Reserve(trainID string, numberOfSeats int) domain.Reservation {
 
 	train := tm.trainDataService.Train(trainID)
-	reservationAttempt := train.BuildReservationAttempt(numberOfSeats)
+	reservationAttempt := train.BuildReservationAttempt(trainID, numberOfSeats)
 
 	if reservationAttempt.IsFullfilled() {
 		bookingRef := tm.bookingReferenceService.GetBookingReference()
 		err := tm.trainDataService.BookSeats(trainID, bookingRef, reservationAttempt.Seats())
 		if err != nil {
-			return reservationAttempt.Confirm()
+			reservation := reservationAttempt.Confirm()
+			return reservation
 		}
 	}
-	return ""
+	return domain.NewFailedReservation()
 }
