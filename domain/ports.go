@@ -7,9 +7,8 @@ type SeatReserver interface {
 
 //TrainDataService is a port
 type TrainDataService interface {
-	Train(id string) Train
-	AdaptTrainTopology(jsonTopology string) []Seat
-	BookSeats(trainID string, bookingReference string, seats []Seat) error
+	GetTrain(id string) Train
+	BookSeats(trainID string, bookingReference string, seats []*Seat) error
 }
 
 //BookingReferenceService is a port

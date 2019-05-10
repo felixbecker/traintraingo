@@ -24,6 +24,6 @@ func (ds *dataservice) AdaptTrainTopology(jsonTopology string) []domain.Seat {
 	return []domain.Seat{}
 }
 
-func (ds *dataservice) BookSeats(trainID string, bookingReference string, seats []domain.Seat) error {
+func (ds *dataservice) BookSeats(trainID string, bookingReference string, seats []*domain.Seat) error {
 	return nil
 }

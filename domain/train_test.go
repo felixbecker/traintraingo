@@ -3,8 +3,35 @@ package domain_test
 import (
 	"testing"
 	"traintraingo/domain"
+	"traintraingo/domain/seatsreservation"
+	"traintraingo/infra"
 	"traintraingo/infra/adapters"
 )
+
+const TrainIDconst string = "9043-2017-09-22"
+const BookingReference string = "75bcd15"
+
+type BookingReferenceServiceMock struct {
+	BookingReference string
+}
+
+func (t *BookingReferenceServiceMock) GetBookingReference() string {
+	return t.BookingReference
+}
+
+type TrainDataServiceMock struct {
+	JsonResponseString string
+}
+
+func (t *TrainDataServiceMock) BookSeats(trainID string, bookingReference string, seats []*domain.Seat) error {
+	return nil
+}
+
+func (t *TrainDataServiceMock) GetTrain(trainID string) domain.Train {
+	listOfSeats, _ := adapters.AdaptTrainTopology(t.JsonResponseString)
+
+	return domain.NewTrain(listOfSeats)
+}
 
 func GetTrainTopologyWith10AvailableSeats() string {
 	return `{"seats": {
@@ -45,6 +72,77 @@ func GetTrainTopology_With_2_Coaches_and_9_seats_are_already_reserved_in_the_fir
 		"10B": {"booking_reference": "", "seat_number": "10", "coach": "B" }
 	}}`
 }
+
+func Test_Build_Reservation_Attempt(t *testing.T) {
+
+	seats := []*domain.Seat{
+		domain.NewSeat("A", 1),
+		domain.NewSeat("A", 2),
+		domain.NewSeat("A", 3),
+		domain.NewSeat("A", 4),
+		domain.NewSeat("A", 5),
+		domain.NewSeat("A", 6),
+		domain.NewSeat("A", 7),
+		domain.NewSeat("A", 8),
+		domain.NewSeat("A", 9),
+		domain.NewSeat("A", 10),
+	}
+
+	train := domain.NewTrain(seats)
+
+	expectedNumberOfSeatsForCoachA := 10
+	numberOfSeats := len(train.Coaches["A"].Seats())
+	if numberOfSeats != expectedNumberOfSeatsForCoachA {
+		t.Errorf("Epected the number of seats in coach 'A' to be %d; got: %d",
+			expectedNumberOfSeatsForCoachA, numberOfSeats)
+	}
+
+	attempt := train.BuildReservationAttempt(TrainIDconst, 3)
+
+	expectedSeatsInAttempt := 3
+	seatsInAttempt := len(attempt.Seats())
+	if expectedSeatsInAttempt != seatsInAttempt {
+		t.Errorf("Expected to have '%d' seats in attempt; got: '%d'",
+			expectedSeatsInAttempt, seatsInAttempt)
+	}
+
+}
+
+func Test_Reserve_seats_when_train_is_empty(t *testing.T) {
+	const requestedSeatCount int = 3
+
+	// Step1: Instantiate the "I want to go out" adapters
+	trainDataServiceAdapter := &TrainDataServiceMock{
+		JsonResponseString: GetTrainTopologyWith10AvailableSeats(),
+	}
+
+	bookingReferenceServiceAdapter := &BookingReferenceServiceMock{
+		BookingReference: BookingReference,
+	}
+
+	hexagon := seatsreservation.New(trainDataServiceAdapter, bookingReferenceServiceAdapter)
+
+	reservationRequestDto := infra.ReservationRequestDto{
+		TrainID:       TrainIDconst,
+		NumberOfSeats: requestedSeatCount,
+	}
+
+	seatReservationAdapter := infra.NewSeatReservationAdapter(hexagon)
+
+	jsonBytes := seatReservationAdapter.Post(reservationRequestDto)
+
+	expectedJsonString := `{}`
+	jsonString := string(jsonBytes)
+
+	if jsonString != expectedJsonString {
+		t.Errorf("Expected the response to be %s; got: %s", expectedJsonString, jsonString)
+	}
+
+}
+func Test_Not_reserve_seats_when_it_exceed_max_capacty_threshold(t *testing.T) {
+
+}
+
 func Test_Train_should_expose_coaches(t *testing.T) {
 
 	apdatedTrainTopology, err := adapters.AdaptTrainTopology(GetTrainTopology_With_2_Coaches_and_9_seats_are_already_reserved_in_the_first_coach())

@@ -23,8 +23,8 @@ func (s *Seat) IsAvailable() bool {
 }
 
 //NewSeat creates a new seat struct based on coachName and seatNumber
-func NewSeat(coachName string, seatNumber int) Seat {
-	return Seat{
+func NewSeat(coachName string, seatNumber int) *Seat {
+	return &Seat{
 		coachName:  coachName,
 		seatNumber: seatNumber,
 	}

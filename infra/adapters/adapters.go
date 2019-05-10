@@ -16,9 +16,9 @@ type trainDto struct {
 	Seats map[string]SeatDto `json:"seats"`
 }
 
-func AdaptTrainTopology(jsonString string) ([]domain.Seat, error) {
+func AdaptTrainTopology(jsonString string) ([]*domain.Seat, error) {
 
-	seats := []domain.Seat{}
+	seats := []*domain.Seat{}
 	var train trainDto
 	//err := json.NewDecoder(jsonResponse).Decode(&train)
 	err := json.Unmarshal([]byte(jsonString), &train)
@@ -34,4 +34,30 @@ func AdaptTrainTopology(jsonString string) ([]domain.Seat, error) {
 		seats = append(seats, domain.NewSeat(seat.CoachName, seatNumber))
 	}
 	return seats, nil
+}
+
+type reservationDto struct {
+	TrainID          string   `json:"train_id"`
+	BookingReference string   `json:"booking_reference"`
+	Seats            []string `json:"seats"`
+}
+
+func AdaptReservation(reservation domain.Reservation) []byte {
+
+	dto := reservationDto{}
+	dto.TrainID = reservation.TrainID()
+	dto.BookingReference = reservation.BookingReference()
+	seats := []string{}
+	for _, seat := range reservation.Seats() {
+		seats = append(seats, fmt.Sprintf("%d%s", seat.SeatNumber(), seat.CoachName()))
+	}
+	dto.Seats = seats
+	jsonBytes, err := json.Marshal(dto)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	fmt.Printf("%+v\n", reservation)
+	fmt.Println(string(jsonBytes))
+	return jsonBytes
 }

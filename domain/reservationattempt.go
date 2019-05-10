@@ -3,7 +3,7 @@ package domain
 //ReservationAttempt is a struct to represent a reservation attempts
 type ReservationAttempt struct {
 	numberOfRequestedSeats int
-	seats                  []Seat
+	seats                  []*Seat
 	trainID                string
 	bookingReference       string
 }
@@ -17,7 +17,7 @@ func NewFailedReservationAttempt(trainID string, numberOfRequestedSeats int) Res
 }
 
 //Seats returns all seats for a reservation attempts
-func (r *ReservationAttempt) Seats() []Seat {
+func (r *ReservationAttempt) Seats() []*Seat {
 	return r.seats
 }
 

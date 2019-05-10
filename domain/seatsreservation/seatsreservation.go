@@ -1,4 +1,4 @@
-package webticketmanager
+package seatsreservation
 
 import (
 	"traintraingo/domain"
@@ -20,7 +20,7 @@ func New(trainDataService domain.TrainDataService, bookingReferenceService domai
 
 func (tm *ticketmanager) Reserve(trainID string, numberOfSeats int) domain.Reservation {
 
-	train := tm.trainDataService.Train(trainID)
+	train := tm.trainDataService.GetTrain(trainID)
 	reservationAttempt := train.BuildReservationAttempt(trainID, numberOfSeats)
 
 	if reservationAttempt.IsFullfilled() {

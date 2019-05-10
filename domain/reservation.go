@@ -4,11 +4,22 @@ package domain
 type Reservation struct {
 	trainID          string
 	bookingReference string
-	seats            []Seat
+	seats            []*Seat
+}
+
+func (r *Reservation) TrainID() string {
+	return r.trainID
+}
+func (r *Reservation) BookingReference() string {
+	return r.bookingReference
+}
+
+func (r *Reservation) Seats() []*Seat {
+	return r.seats
 }
 
 //NewReservation creates a new reservation based on the trainID, bookingReference and the seats
-func NewReservation(trainID string, bookingReference string, seats []Seat) Reservation {
+func NewReservation(trainID string, bookingReference string, seats []*Seat) Reservation {
 	return Reservation{
 		trainID:          trainID,
 		bookingReference: bookingReference,

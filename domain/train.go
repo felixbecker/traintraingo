@@ -4,12 +4,12 @@ package domain
 
 //Train is value type thats hold train information
 type Train struct {
-	Coaches map[string]Coach
+	Coaches map[string]*Coach
 }
 
 //Seats retrieves all seats for a given train
-func (t *Train) Seats() []Seat {
-	seats := []Seat{}
+func (t *Train) Seats() []*Seat {
+	seats := []*Seat{}
 	for _, coach := range t.Coaches {
 		seats = append(seats, coach.seats...)
 	}
@@ -17,8 +17,8 @@ func (t *Train) Seats() []Seat {
 }
 
 //ReservedSeats retrieves all reserved seats
-func (t *Train) ReservedSeats() []Seat {
-	reservedSeats := []Seat{}
+func (t *Train) ReservedSeats() []*Seat {
+	reservedSeats := []*Seat{}
 	for _, s := range t.Seats() {
 		if len(s.BookingRef) > 0 {
 			reservedSeats = append(reservedSeats, s)
@@ -43,6 +43,7 @@ func (t *Train) BuildReservationAttempt(trainID string, seatRequested int) Reser
 	for _, coach := range t.Coaches {
 		reservationAttempt := coach.BuildReservationAttempt(trainID, seatRequested)
 		if reservationAttempt.IsFullfilled() {
+
 			return reservationAttempt
 		}
 	}
@@ -50,9 +51,10 @@ func (t *Train) BuildReservationAttempt(trainID string, seatRequested int) Reser
 }
 
 //NewTrain creates a new train based on a set of seats
-func NewTrain(seats []Seat) Train {
-	coaches := map[string]Coach{}
+func NewTrain(seats []*Seat) Train {
+	coaches := map[string]*Coach{}
 	for _, seat := range seats {
+
 		if _, ok := coaches[seat.CoachName()]; !ok {
 			coaches[seat.CoachName()] = NewCoach(seat.CoachName())
 		}
