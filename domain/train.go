@@ -1,6 +1,9 @@
 package domain
 
-//Reservationattempt holds information regarding a possible reservation
+import (
+	"fmt"
+	"math"
+)
 
 //Train is value type thats hold train information
 type Train struct {
@@ -34,7 +37,9 @@ func (t *Train) MaxSeats() int {
 
 //DoesNotExceedOveralTrainCapacity checks whether the numberOfRequestedSeats exceeds the overall train capacity
 func (t *Train) DoesNotExceedOveralTrainCapacity(numberOfRequestedSeats int) bool {
-	return float64(len(t.ReservedSeats())+numberOfRequestedSeats) < float64(t.MaxSeats())*float64(0.70)
+	result := float64(len(t.ReservedSeats())+numberOfRequestedSeats) <= math.Floor(float64(t.MaxSeats())*float64(0.70))
+	fmt.Println(t.ReservedSeats())
+	return result
 }
 
 //BuildReservationAttempt creates a reservation attempt from the number of requested seats
@@ -61,6 +66,7 @@ func NewTrain(seats []*Seat) Train {
 		coaches[seat.CoachName()].AddSeat(seat)
 
 	}
+
 	return Train{
 		Coaches: coaches,
 	}

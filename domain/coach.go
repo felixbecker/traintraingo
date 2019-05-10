@@ -1,5 +1,7 @@
 package domain
 
+import "sort"
+
 //NewCoach creates a Coach struct
 func NewCoach(coachName string) *Coach {
 	return &Coach{
@@ -27,6 +29,9 @@ func (c *Coach) Seats() []*Seat {
 func (c *Coach) BuildReservationAttempt(trainID string, numberOfRequestedSeats int) ReservationAttempt {
 
 	avaibleSeats := []*Seat{}
+	sort.Slice(c.seats, func(i, j int) bool {
+		return c.seats[i].seatNumber < c.seats[j].seatNumber
+	})
 	for idx, seat := range c.seats {
 		if seat.IsAvailable() {
 			if idx+1 <= numberOfRequestedSeats {
@@ -36,12 +41,10 @@ func (c *Coach) BuildReservationAttempt(trainID string, numberOfRequestedSeats i
 
 	}
 
-	ra := ReservationAttempt{
+	return ReservationAttempt{
 		trainID:                trainID,
 		numberOfRequestedSeats: numberOfRequestedSeats,
 		seats:                  avaibleSeats,
 	}
-
-	return ra
 
 }

@@ -21,15 +21,21 @@ func New(trainDataService domain.TrainDataService, bookingReferenceService domai
 func (tm *ticketmanager) Reserve(trainID string, numberOfSeats int) domain.Reservation {
 
 	train := tm.trainDataService.GetTrain(trainID)
-	reservationAttempt := train.BuildReservationAttempt(trainID, numberOfSeats)
 
-	if reservationAttempt.IsFullfilled() {
-		bookingRef := tm.bookingReferenceService.GetBookingReference()
-		err := tm.trainDataService.BookSeats(trainID, bookingRef, reservationAttempt.Seats())
-		if err != nil {
-			reservation := reservationAttempt.Confirm()
-			return reservation
+	if train.DoesNotExceedOveralTrainCapacity(numberOfSeats) {
+		reservationAttempt := train.BuildReservationAttempt(trainID, numberOfSeats)
+		if reservationAttempt.IsFullfilled() {
+
+			bookingRef := tm.bookingReferenceService.GetBookingReference()
+			reservationAttempt.AssignBookingReference(bookingRef)
+
+			err := tm.trainDataService.BookSeats(trainID, bookingRef, reservationAttempt.Seats())
+			if err == nil {
+				reservation := reservationAttempt.Confirm()
+				return reservation
+			}
 		}
 	}
-	return domain.NewFailedReservation()
+
+	return domain.NewFailedReservation(trainID)
 }

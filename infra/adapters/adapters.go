@@ -10,6 +10,7 @@ import (
 type SeatDto struct {
 	CoachName  string `json:"coach"`
 	SeatNumber string `json:"seat_number"`
+	BookingRef string `json:"booking_reference"`
 }
 
 type trainDto struct {
@@ -31,7 +32,7 @@ func AdaptTrainTopology(jsonString string) ([]*domain.Seat, error) {
 		if err != nil {
 			return nil, fmt.Errorf("malicious seat number")
 		}
-		seats = append(seats, domain.NewSeat(seat.CoachName, seatNumber))
+		seats = append(seats, domain.NewSeat(seat.CoachName, seatNumber, seat.BookingRef))
 	}
 	return seats, nil
 }

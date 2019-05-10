@@ -28,6 +28,6 @@ func NewReservation(trainID string, bookingReference string, seats []*Seat) Rese
 }
 
 //NewFailedReservation returns an empty reservation
-func NewFailedReservation() Reservation {
-	return Reservation{}
+func NewFailedReservation(trainID string) Reservation {
+	return Reservation{trainID: trainID}
 }
