@@ -4,7 +4,7 @@ package domain
 type Seat struct {
 	coachName  string
 	seatNumber int
-	BookingRef string
+	BookingRef BookingReference
 }
 
 //CoachName retrieves the coach name of a seat
@@ -23,7 +23,7 @@ func (s *Seat) IsAvailable() bool {
 }
 
 //NewSeat creates a new seat struct based on coachName and seatNumber
-func NewSeat(coachName string, seatNumber int, bookingRef string) *Seat {
+func NewSeat(coachName string, seatNumber int, bookingRef BookingReference) *Seat {
 	return &Seat{
 		coachName:  coachName,
 		seatNumber: seatNumber,

@@ -23,7 +23,7 @@ type seatReservationAdapter struct {
 func (s *seatReservationAdapter) Post(dto ReservationRequestDto) json.RawMessage {
 	// adapt from Infra to Domain
 	numberOfSeatsToRequest := dto.NumberOfSeats
-	trainID := dto.TrainID
+	trainID := adapters.AdaptTrainIDString(dto.TrainID)
 
 	// Call business logic
 	reservation := s.hexagon.Reserve(trainID, numberOfSeatsToRequest)

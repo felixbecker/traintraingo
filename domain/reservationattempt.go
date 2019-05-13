@@ -5,7 +5,7 @@ type ReservationAttempt struct {
 	numberOfRequestedSeats int
 	seats                  []*Seat
 	trainID                TrainID
-	bookingReference       string
+	bookingReference       BookingReference
 }
 
 //NewFailedReservationAttempt returns a Reservationattempt with no seats
@@ -27,7 +27,7 @@ func (r *ReservationAttempt) IsFullfilled() bool {
 }
 
 //AssignBookingReference assigns the booking reference for each seat in the reservation attempt
-func (r *ReservationAttempt) AssignBookingReference(bookingRef string) {
+func (r *ReservationAttempt) AssignBookingReference(bookingRef BookingReference) {
 	for _, s := range r.seats {
 		s.BookingRef = bookingRef
 	}

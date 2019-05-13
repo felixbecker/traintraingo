@@ -33,7 +33,7 @@ func AdaptTrainTopology(jsonString string) ([]*domain.Seat, error) {
 		if err != nil {
 			return nil, fmt.Errorf("malicious seat number")
 		}
-		seats = append(seats, domain.NewSeat(seat.CoachName, seatNumber, seat.BookingRef))
+		seats = append(seats, domain.NewSeat(seat.CoachName, seatNumber, AdaptBookingReferenceDto(seat.BookingRef)))
 	}
 	return seats, nil
 }
@@ -49,12 +49,27 @@ func AdaptTrainID(trainID domain.TrainID) string {
 	return string(trainID)
 }
 
+//AdaptTrainIDString adapts a string representation of a train id and returns a TrainID
+func AdaptTrainIDString(trainID string) domain.TrainID {
+	return domain.TrainID(trainID)
+}
+
+//AdaptBookingReference adapts the booking rederence and returns a string representation
+func AdaptBookingReference(bookingRef domain.BookingReference) string {
+	return string(bookingRef)
+}
+
+//AdaptBookingReferenceDto adapts the string representation of a booking reference and returns BookingReference
+func AdaptBookingReferenceDto(bookingRef string) domain.BookingReference {
+	return domain.BookingReference(bookingRef)
+}
+
 //AdaptReservation adapts the reservation and returns its json bytes representation
 func AdaptReservation(reservation domain.Reservation) []byte {
 
 	dto := reservationDto{}
 	dto.TrainID = AdaptTrainID(reservation.TrainID())
-	dto.BookingReference = reservation.BookingReference()
+	dto.BookingReference = AdaptBookingReference(reservation.BookingReference())
 	seats := []string{}
 	for _, seat := range reservation.Seats() {
 		seats = append(seats, fmt.Sprintf("%d%s", seat.SeatNumber(), seat.CoachName()))

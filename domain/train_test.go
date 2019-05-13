@@ -1,11 +1,8 @@
 package domain_test
 
 import (
-	"fmt"
 	"testing"
 	"traintraingo/domain"
-	"traintraingo/domain/seatsreservation"
-	"traintraingo/infra"
 	"traintraingo/infra/adapters"
 )
 
@@ -35,6 +32,7 @@ func (t *TrainDataServiceMock) GetTrain(trainID string) domain.Train {
 	}
 	return domain.NewTrain(listOfSeats)
 }
+
 func GetTrainTopologyWith_10_seats_and_6_already_reserved() string {
 	return `{"seats": {
 		"1A": {"booking_reference": "75bcd15", "seat_number": "1", "coach": "A" },
@@ -107,13 +105,14 @@ func Test_Build_Reservation_Attempt(t *testing.T) {
 	train := domain.NewTrain(seats)
 
 	expectedNumberOfSeatsForCoachA := 10
+
 	numberOfSeats := len(train.Coaches["A"].Seats())
 	if numberOfSeats != expectedNumberOfSeatsForCoachA {
 		t.Errorf("Epected the number of seats in coach 'A' to be %d; got: %d",
 			expectedNumberOfSeatsForCoachA, numberOfSeats)
 	}
-
-	attempt := train.BuildReservationAttempt(TrainIDconst, 3)
+	trainID := adapters.AdaptTrainIDString(TrainIDconst)
+	attempt := train.BuildReservationAttempt(trainID, 3)
 
 	expectedSeatsInAttempt := 3
 	seatsInAttempt := len(attempt.Seats())
@@ -122,99 +121,6 @@ func Test_Build_Reservation_Attempt(t *testing.T) {
 			expectedSeatsInAttempt, seatsInAttempt)
 	}
 
-}
-
-func Test_Reserve_seats_when_train_is_empty(t *testing.T) {
-	const requestedSeatCount int = 3
-
-	// Step1: Instantiate the "I want to go out" adapters
-	trainDataServiceAdapter := &TrainDataServiceMock{
-		JsonResponseString: GetTrainTopologyWith10AvailableSeats(),
-	}
-
-	bookingReferenceServiceAdapter := &BookingReferenceServiceMock{
-		BookingReference: BookingReference,
-	}
-
-	hexagon := seatsreservation.New(trainDataServiceAdapter, bookingReferenceServiceAdapter)
-
-	reservationRequestDto := infra.ReservationRequestDto{
-		TrainID:       TrainIDconst,
-		NumberOfSeats: requestedSeatCount,
-	}
-
-	seatReservationAdapter := infra.NewSeatReservationAdapter(hexagon)
-
-	jsonBytes := seatReservationAdapter.Post(reservationRequestDto)
-
-	expectedJsonString := fmt.Sprintf(`{"train_id":"%s","booking_reference":"%s","seats":["1A","2A","3A"]}`,
-		TrainIDconst, BookingReference)
-	jsonString := string(jsonBytes)
-
-	if jsonString != expectedJsonString {
-		t.Errorf("Expected the response to be %s; got: %s", expectedJsonString, jsonString)
-	}
-
-}
-func Test_Not_reserve_seats_when_it_exceed_max_capacty_threshold(t *testing.T) {
-
-	const requestedSeatCount int = 3
-
-	// Step1: Instantiate the "I want to go out" adapters
-	trainDataServiceAdapter := &TrainDataServiceMock{
-		JsonResponseString: GetTrainTopologyWith_10_seats_and_6_already_reserved(),
-	}
-
-	bookingReferenceServiceAdapter := &BookingReferenceServiceMock{
-		BookingReference: BookingReference,
-	}
-
-	hexagon := seatsreservation.New(trainDataServiceAdapter, bookingReferenceServiceAdapter)
-
-	seatReservationAdapter := infra.NewSeatReservationAdapter(hexagon)
-
-	reservationRequestDto := infra.ReservationRequestDto{
-		TrainID:       TrainIDconst,
-		NumberOfSeats: requestedSeatCount,
-	}
-	jsonBytes := seatReservationAdapter.Post(reservationRequestDto)
-	expectedJsonString := fmt.Sprintf(`{"train_id":"%s","booking_reference":"","seats":[]}`,
-		TrainIDconst)
-	jsonString := string(jsonBytes)
-
-	if jsonString != expectedJsonString {
-		t.Errorf("Expected the response to be %s; got: %s", expectedJsonString, jsonString)
-	}
-}
-
-func Test_Reserve_all_seats_in_the_same_coach(t *testing.T) {
-	const requestedSeatCount int = 2
-
-	// Step1: Instantiate the "I want to go out" adapters
-	trainDataServiceAdapter := &TrainDataServiceMock{
-		JsonResponseString: GetTrainTopology_With_2_Coaches_and_9_seats_are_already_reserved_in_the_first_coach(),
-	}
-
-	bookingReferenceServiceAdapter := &BookingReferenceServiceMock{
-		BookingReference: BookingReference,
-	}
-
-	hexagon := seatsreservation.New(trainDataServiceAdapter, bookingReferenceServiceAdapter)
-
-	seatReservationAdapter := infra.NewSeatReservationAdapter(hexagon)
-
-	reservationRequestDto := infra.ReservationRequestDto{
-		TrainID:       TrainIDconst,
-		NumberOfSeats: requestedSeatCount,
-	}
-	jsonBytes := seatReservationAdapter.Post(reservationRequestDto)
-	expectedJsonString := fmt.Sprintf(`{"train_id":"%s","booking_reference":"%s","seats":["1B","2B"]}`,
-		TrainIDconst, BookingReference)
-	jsonString := string(jsonBytes)
-
-	if jsonString != expectedJsonString {
-		t.Errorf("Expected the response to be %s; got: %s", expectedJsonString, jsonString)
-	}
 }
 
 func Test_Train_should_expose_coaches(t *testing.T) {
