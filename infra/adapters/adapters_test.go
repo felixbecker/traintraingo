@@ -2,6 +2,7 @@ package adapters_test
 
 import (
 	"testing"
+	"traintraingo/domain"
 	"traintraingo/infra/adapters"
 )
 
@@ -31,4 +32,23 @@ func Test_Train_topology_apdapter_test(t *testing.T) {
 		t.Errorf("Expected the list of seat to contain 10 elements; got: %d", len(listOfSeats))
 	}
 
+}
+
+func Test_AdaptTrainIDString(t *testing.T) {
+	trainID := adapters.AdaptTrainIDString("hello_world_id")
+
+	expectedTrainID := domain.TrainID("hello_world_id")
+	if expectedTrainID != trainID {
+		t.Errorf("Expepected the train id to be equal types")
+	}
+}
+
+func Test_AdaptTrainID(t *testing.T) {
+	trainID := domain.TrainID("hello_world_id")
+	trainIDString := adapters.AdaptTrainID(trainID)
+	expectedString := "hello_world"
+
+	if expectedString != trainIDString {
+		t.Errorf("Expected the train ids to be equal strings")
+	}
 }
