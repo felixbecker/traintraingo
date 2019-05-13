@@ -43,7 +43,7 @@ func (t *Train) DoesNotExceedOveralTrainCapacity(numberOfRequestedSeats int) boo
 }
 
 //BuildReservationAttempt creates a reservation attempt from the number of requested seats
-func (t *Train) BuildReservationAttempt(trainID string, seatRequested int) ReservationAttempt {
+func (t *Train) BuildReservationAttempt(trainID TrainID, seatRequested int) ReservationAttempt {
 
 	for _, coach := range t.Coaches {
 		reservationAttempt := coach.BuildReservationAttempt(trainID, seatRequested)

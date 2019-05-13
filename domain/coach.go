@@ -26,7 +26,7 @@ func (c *Coach) Seats() []*Seat {
 }
 
 //BuildReservationAttempt creates a reservation attempt based on the number of requested seats
-func (c *Coach) BuildReservationAttempt(trainID string, numberOfRequestedSeats int) ReservationAttempt {
+func (c *Coach) BuildReservationAttempt(trainID TrainID, numberOfRequestedSeats int) ReservationAttempt {
 
 	avaibleSeats := []*Seat{}
 	sort.Slice(c.seats, func(i, j int) bool {

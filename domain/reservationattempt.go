@@ -4,12 +4,12 @@ package domain
 type ReservationAttempt struct {
 	numberOfRequestedSeats int
 	seats                  []*Seat
-	trainID                string
+	trainID                TrainID
 	bookingReference       string
 }
 
 //NewFailedReservationAttempt returns a Reservationattempt with no seats
-func NewFailedReservationAttempt(trainID string, numberOfRequestedSeats int) ReservationAttempt {
+func NewFailedReservationAttempt(trainID TrainID, numberOfRequestedSeats int) ReservationAttempt {
 	return ReservationAttempt{
 		trainID:                trainID,
 		numberOfRequestedSeats: numberOfRequestedSeats,

@@ -2,24 +2,28 @@ package domain
 
 //Reservation struct to hold information for a reservation
 type Reservation struct {
-	trainID          string
+	trainID          TrainID
 	bookingReference string
 	seats            []*Seat
 }
 
-func (r *Reservation) TrainID() string {
+//TrainID imutable getter for the train id
+func (r *Reservation) TrainID() TrainID {
 	return r.trainID
 }
+
+//BookingReference imutable getter for the booking reference
 func (r *Reservation) BookingReference() string {
 	return r.bookingReference
 }
 
+//Seats imutable getter for the seats
 func (r *Reservation) Seats() []*Seat {
 	return r.seats
 }
 
 //NewReservation creates a new reservation based on the trainID, bookingReference and the seats
-func NewReservation(trainID string, bookingReference string, seats []*Seat) Reservation {
+func NewReservation(trainID TrainID, bookingReference string, seats []*Seat) Reservation {
 	return Reservation{
 		trainID:          trainID,
 		bookingReference: bookingReference,
@@ -28,6 +32,6 @@ func NewReservation(trainID string, bookingReference string, seats []*Seat) Rese
 }
 
 //NewFailedReservation returns an empty reservation
-func NewFailedReservation(trainID string) Reservation {
+func NewFailedReservation(trainID TrainID) Reservation {
 	return Reservation{trainID: trainID}
 }

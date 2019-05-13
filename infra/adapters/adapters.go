@@ -7,16 +7,17 @@ import (
 	"traintraingo/domain"
 )
 
-type SeatDto struct {
+type seatDto struct {
 	CoachName  string `json:"coach"`
 	SeatNumber string `json:"seat_number"`
 	BookingRef string `json:"booking_reference"`
 }
 
 type trainDto struct {
-	Seats map[string]SeatDto `json:"seats"`
+	Seats map[string]seatDto `json:"seats"`
 }
 
+//AdaptTrainTopology adapts a json string into a list of seats
 func AdaptTrainTopology(jsonString string) ([]*domain.Seat, error) {
 
 	seats := []*domain.Seat{}
@@ -43,10 +44,16 @@ type reservationDto struct {
 	Seats            []string `json:"seats"`
 }
 
+//AdaptTrainID adapts the train id and returns its string representation
+func AdaptTrainID(trainID domain.TrainID) string {
+	return string(trainID)
+}
+
+//AdaptReservation adapts the reservation and returns its json bytes representation
 func AdaptReservation(reservation domain.Reservation) []byte {
 
 	dto := reservationDto{}
-	dto.TrainID = reservation.TrainID()
+	dto.TrainID = AdaptTrainID(reservation.TrainID())
 	dto.BookingReference = reservation.BookingReference()
 	seats := []string{}
 	for _, seat := range reservation.Seats() {
@@ -58,7 +65,6 @@ func AdaptReservation(reservation domain.Reservation) []byte {
 		fmt.Println(err)
 		return nil
 	}
-	fmt.Printf("%+v\n", reservation)
-	fmt.Println(string(jsonBytes))
+
 	return jsonBytes
 }

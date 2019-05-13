@@ -18,7 +18,7 @@ func New(trainDataService domain.TrainDataService, bookingReferenceService domai
 	}
 }
 
-func (tm *ticketmanager) Reserve(trainID string, numberOfSeats int) domain.Reservation {
+func (tm *ticketmanager) Reserve(trainID domain.TrainID, numberOfSeats int) domain.Reservation {
 
 	train := tm.trainDataService.GetTrain(trainID)
 
