@@ -1,25 +1,26 @@
 package traindataservice
 
 import (
-	"traintraingo/domain"
+	"traintraingo/domain/ports"
+	"traintraingo/domain/train"
 )
 
 type dataservice struct {
 }
 
 //New creates a new train data service
-func New() domain.TrainDataService {
+func New() ports.TrainDataService {
 	return &dataservice{}
 }
 
-func (ds *dataservice) GetTrain(id domain.TrainID) domain.Train {
-	return domain.Train{}
+func (ds *dataservice) GetTrain(id train.ID) train.Train {
+	return train.Train{}
 }
-func (ds *dataservice) AdaptTrainTopology(jsonTopology string) []domain.Seat {
+func (ds *dataservice) AdaptTrainTopology(jsonTopology string) []train.Seat {
 
-	return []domain.Seat{}
+	return []train.Seat{}
 }
 
-func (ds *dataservice) BookSeats(trainID domain.TrainID, bookingReference domain.BookingReference, seats []*domain.Seat) error {
+func (ds *dataservice) BookSeats(trainID train.ID, bookingReference train.BookingReference, seats []*train.Seat) error {
 	return nil
 }

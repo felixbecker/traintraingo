@@ -1,14 +1,14 @@
-package domain
+package train
 
 //Reservation struct to hold information for a reservation
 type Reservation struct {
-	trainID          TrainID
+	trainID          ID
 	bookingReference BookingReference
 	seats            []*Seat
 }
 
 //TrainID imutable getter for the train id
-func (r *Reservation) TrainID() TrainID {
+func (r *Reservation) TrainID() ID {
 	return r.trainID
 }
 
@@ -23,7 +23,7 @@ func (r *Reservation) Seats() []*Seat {
 }
 
 //NewReservation creates a new reservation based on the trainID, bookingReference and the seats
-func NewReservation(trainID TrainID, bookingReference BookingReference, seats []*Seat) Reservation {
+func newReservation(trainID ID, bookingReference BookingReference, seats []*Seat) Reservation {
 	return Reservation{
 		trainID:          trainID,
 		bookingReference: bookingReference,
@@ -31,7 +31,10 @@ func NewReservation(trainID TrainID, bookingReference BookingReference, seats []
 	}
 }
 
-//NewFailedReservation returns an empty reservation
-func NewFailedReservation(trainID TrainID) Reservation {
-	return Reservation{trainID: trainID}
+//NewFailedReservation creates a reservation that holds only trainID and booking reference since it failed
+func newFailedReservation(trainID ID, bookingReference BookingReference) Reservation {
+	return Reservation{
+		trainID:          trainID,
+		bookingReference: bookingReference,
+	}
 }

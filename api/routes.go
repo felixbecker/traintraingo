@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"traintraingo/infra"
 
@@ -19,7 +20,10 @@ func handleReservation(reservationService infra.SeatReservationAdapter) func(w h
 			http.Error(w, "Can not parse reservation request", http.StatusBadRequest)
 		}
 
-		bytes := reservationService.Post(dto)
+		bytes, err := reservationService.Post(dto)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Reservation failed: %s", err.Error()), http.StatusBadRequest)
+		}
 		w.Write(bytes)
 	}
 }

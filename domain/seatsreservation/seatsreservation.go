@@ -1,16 +1,17 @@
 package seatsreservation
 
 import (
-	"traintraingo/domain"
+	"traintraingo/domain/ports"
+	"traintraingo/domain/train"
 )
 
 type ticketmanager struct {
-	trainDataService        domain.TrainDataService
-	bookingReferenceService domain.BookingReferenceService
+	trainDataService        ports.TrainDataService
+	bookingReferenceService ports.BookingReferenceService
 }
 
 //New creates a new web ticket manager with dependencies to train data service and booking reference service
-func New(trainDataService domain.TrainDataService, bookingReferenceService domain.BookingReferenceService) domain.SeatReserver {
+func New(trainDataService ports.TrainDataService, bookingReferenceService ports.BookingReferenceService) ports.SeatReserver {
 
 	return &ticketmanager{
 		trainDataService:        trainDataService,
@@ -18,12 +19,18 @@ func New(trainDataService domain.TrainDataService, bookingReferenceService domai
 	}
 }
 
-func (tm *ticketmanager) Reserve(trainID domain.TrainID, numberOfSeats int) domain.Reservation {
+func (tm *ticketmanager) Reserve(trainID train.ID, numberOfSeats int) *train.Reservation {
 
-	train := tm.trainDataService.GetTrain(trainID)
+	var failedReservation train.Reservation
 
-	if train.DoesNotExceedOveralTrainCapacity(numberOfSeats) {
-		reservationAttempt := train.BuildReservationAttempt(trainID, numberOfSeats)
+	selectedTrain := tm.trainDataService.GetTrain(trainID)
+
+	if selectedTrain.DoesNotExceedOveralTrainCapacity(numberOfSeats) {
+		reservationAttempt, err := selectedTrain.BuildReservationAttempt(trainID, numberOfSeats)
+		if err != nil {
+			failedReservation := train.NewFailedReservation(trainID, train.EmptyBookingReference())
+			return &failedReservation
+		}
 		if reservationAttempt.IsFullfilled() {
 
 			bookingRef := tm.bookingReferenceService.GetBookingReference()
@@ -32,10 +39,12 @@ func (tm *ticketmanager) Reserve(trainID domain.TrainID, numberOfSeats int) doma
 			err := tm.trainDataService.BookSeats(trainID, bookingRef, reservationAttempt.Seats())
 			if err == nil {
 				reservation := reservationAttempt.Confirm()
-				return reservation
+				return &reservation
 			}
-		}
-	}
 
-	return domain.NewFailedReservation(trainID)
+		}
+
+	}
+	failedReservation = train.NewFailedReservation(trainID, train.EmptyBookingReference())
+	return &failedReservation
 }

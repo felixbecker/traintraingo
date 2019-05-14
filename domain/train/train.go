@@ -1,13 +1,24 @@
-package domain
+package train
 
 import (
 	"fmt"
 	"math"
 )
 
+//ID is a type for the train id
+type ID string
+
+//BookingReference is atype for the booking reference
+type BookingReference string
+
 //Train is value type thats hold train information
 type Train struct {
 	Coaches map[string]*Coach
+}
+
+//EmptyBookingReference returns an empty booking reference
+func EmptyBookingReference() BookingReference {
+	return BookingReference("")
 }
 
 //Seats retrieves all seats for a given train
@@ -27,6 +38,7 @@ func (t *Train) ReservedSeats() []*Seat {
 			reservedSeats = append(reservedSeats, s)
 		}
 	}
+
 	return reservedSeats
 }
 
@@ -43,20 +55,20 @@ func (t *Train) DoesNotExceedOveralTrainCapacity(numberOfRequestedSeats int) boo
 }
 
 //BuildReservationAttempt creates a reservation attempt from the number of requested seats
-func (t *Train) BuildReservationAttempt(trainID TrainID, seatRequested int) ReservationAttempt {
+func (t *Train) BuildReservationAttempt(trainID ID, seatRequested int) (*ReservationAttempt, error) {
 
 	for _, coach := range t.Coaches {
 		reservationAttempt := coach.BuildReservationAttempt(trainID, seatRequested)
 		if reservationAttempt.IsFullfilled() {
 
-			return reservationAttempt
+			return &reservationAttempt, nil
 		}
 	}
-	return NewFailedReservationAttempt(trainID, seatRequested)
+	return nil, fmt.Errorf("reservation attempt to reserve %d seat(s) failed for train: %s", seatRequested, trainID)
 }
 
-//NewTrain creates a new train based on a set of seats
-func NewTrain(seats []*Seat) Train {
+//New creates a new train based on a set of seats
+func New(seats []*Seat) Train {
 	coaches := map[string]*Coach{}
 	for _, seat := range seats {
 

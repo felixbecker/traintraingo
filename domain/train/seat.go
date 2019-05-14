@@ -1,4 +1,4 @@
-package domain
+package train
 
 //Seat is a value type to represent seat in a traintrain domain
 type Seat struct {

@@ -1,19 +1,11 @@
-package domain
+package train
 
 //ReservationAttempt is a struct to represent a reservation attempts
 type ReservationAttempt struct {
 	numberOfRequestedSeats int
 	seats                  []*Seat
-	trainID                TrainID
+	trainID                ID
 	bookingReference       BookingReference
-}
-
-//NewFailedReservationAttempt returns a Reservationattempt with no seats
-func NewFailedReservationAttempt(trainID TrainID, numberOfRequestedSeats int) ReservationAttempt {
-	return ReservationAttempt{
-		trainID:                trainID,
-		numberOfRequestedSeats: numberOfRequestedSeats,
-	}
 }
 
 //Seats returns all seats for a reservation attempts
@@ -37,5 +29,5 @@ func (r *ReservationAttempt) AssignBookingReference(bookingRef BookingReference)
 
 //Confirm confirms transforms a reservation attempt to a reservation
 func (r *ReservationAttempt) Confirm() Reservation {
-	return NewReservation(r.trainID, r.bookingReference, r.seats)
+	return newReservation(r.trainID, r.bookingReference, r.seats)
 }
