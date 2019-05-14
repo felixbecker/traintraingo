@@ -6,13 +6,14 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"traintraingo/api"
+	"traintraingo/infra"
 )
 
 func main() {
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "hello train train go!")
-	})
+	var seatReservationService infra.SeatReservationAdapter
+	router := api.Routes(seatReservationService)
 
 	var gracefulStop = make(chan os.Signal)
 	signal.Notify(gracefulStop, syscall.SIGTERM)
@@ -25,6 +26,6 @@ func main() {
 	}()
 
 	fmt.Println("Started server on localhost:8080. ctl+c to stop")
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8080", router)
 
 }
